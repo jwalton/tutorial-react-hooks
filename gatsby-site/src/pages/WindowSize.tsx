@@ -1,10 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+function useSize(target: React.RefObject<HTMLElement>) {
+    const [size, setSize] = useState({ w: 0, h: 0 });
+
+    useEffect(() => {
+        const subscriber = () => {
+            if (target.current) {
+                setSize({
+                    w: target.current.offsetWidth,
+                    h: target.current.offsetHeight,
+                });
+            }
+        };
+        subscriber();
+
+        console.log('Add listener');
+        window.addEventListener('resize', subscriber);
+
+        return () => {
+            console.log('Remove listener');
+            window.removeEventListener('resize', subscriber);
+        };
+    }, [setSize, target.current]);
+
+    return size;
+}
 
 /**
  * Child
  */
-const SizeViewer = () => {
-    return <div>Size is: ? x ?</div>;
+const SizeViewer = (props: { target: React.RefObject<HTMLElement> }) => {
+    const size = useSize(props.target);
+    return (
+        <div>
+            Size is: {size.w} x {size.h}
+        </div>
+    );
 };
 
 /**
@@ -12,6 +43,7 @@ const SizeViewer = () => {
  */
 const WindowSize = () => {
     const [showWindowSize, setShowWindowSize] = useState(true);
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
     const toggleShowWindowSize = () => {
         setShowWindowSize(!showWindowSize);
@@ -21,8 +53,10 @@ const WindowSize = () => {
 
     return (
         <>
-            <button onClick={toggleShowWindowSize}>{verb} window size</button>
-            {showWindowSize ? <SizeViewer /> : null}
+            <button ref={buttonRef} onClick={toggleShowWindowSize}>
+                {verb} window size
+            </button>
+            {showWindowSize ? <SizeViewer target={buttonRef} /> : null}
         </>
     );
 };

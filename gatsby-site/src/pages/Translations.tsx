@@ -5,6 +5,8 @@ import {
     Translations,
 } from '../components/translationsDemo/translations';
 
+const TranslationsContext = React.createContext(translationsByLocale.en);
+
 /**
  * Parent
  */
@@ -13,14 +15,14 @@ const TranslationsDemo: React.FC<{}> = () => {
     const translations = translationsByLocale[currentLocale];
 
     return (
-        <div>
-            <LanguagePicker
-                currentLocale={currentLocale}
-                onLocaleChange={setCurrentLocale}
-            />
+            <div>
+                <LanguagePicker
+                    currentLocale={currentLocale}
+                    onLocaleChange={setCurrentLocale}
+                />
 
-            <SayHello />
-        </div>
+                <SayHello />
+            </div>
     );
 };
 
@@ -28,7 +30,11 @@ const TranslationsDemo: React.FC<{}> = () => {
  * Child
  */
 const SayHello: React.FC<{}> = () => {
-    return <span>{'untranslated'}</span>;
+    const translations = useContext(TranslationsContext);
+
+    return (
+        <span>{translations.helloWorld}</span>
+    );
 };
 
 export default TranslationsDemo;
